@@ -9,6 +9,13 @@ public class Contratante {
     private LocalDate fechaRegistro;
 
     public Contratante(String documento, String nombre, String telefono, LocalDate fechaRegistro){
+        if (documento == null || documento.trim().isEmpty()){
+            throw new DatoInvalidoException("El documento del contratante no puede estar vacío.");
+        }
+        if (nombre == null || nombre.trim().isEmpty()){
+            throw new DatoInvalidoException("El nombre del contratante no puede estar vacío.");
+        }
+
         this.documento = documento;
         this.nombre = nombre;
         this.telefono = telefono;
