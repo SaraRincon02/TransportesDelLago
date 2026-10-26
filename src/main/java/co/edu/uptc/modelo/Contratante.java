@@ -13,7 +13,7 @@ public class Contratante {
             throw new DatoInvalidoException("El documento del contratante no puede estar vacío.");
         }
         if (nombre == null || nombre.trim().isEmpty()){
-            throw new DatoInvalidoException("El nombre del contratante no puede estar vacío.");
+            throw new DatoInvalidoException("El nombre no puede ir vacío.");
         }
 
         this.documento = documento;
