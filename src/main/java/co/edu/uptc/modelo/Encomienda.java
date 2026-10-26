@@ -52,7 +52,7 @@ public class Encomienda implements Asegurable{
 
     @Override
     public String obtenerDescripcionPoliza() {
-        return "Póliza de protección de maercancía. Remitente: " + remitente + " | Destinatario: " + destinatario
+        return "Póliza de protección de mercancía. Remitente: " + remitente + " | Destinatario: " + destinatario
                 + " | Valor Declarado: $" + valorDeclarado;
     }
 }
