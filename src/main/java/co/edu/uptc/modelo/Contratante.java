@@ -16,6 +16,7 @@ public class Contratante {
             throw new DatoInvalidoException("El nombre no puede ir vacío.");
         }
 
+
         this.documento = documento;
         this.nombre = nombre;
         this.telefono = telefono;
