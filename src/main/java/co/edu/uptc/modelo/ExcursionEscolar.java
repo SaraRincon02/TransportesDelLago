@@ -2,6 +2,7 @@ package co.edu.uptc.modelo;
 
 public class ExcursionEscolar extends Servicio implements Asegurable{
     private int cantidadEstudiantes;
+    private static final double TARIFA_ESTUDIANTE = 18000;
 
     public ExcursionEscolar(int duracionHoras, int cantidadEstudiantes, Bus busAsignado){
         super(duracionHoras);
@@ -25,7 +26,7 @@ public class ExcursionEscolar extends Servicio implements Asegurable{
 
     @Override
     public double calcularTarifaBase() {
-        return getCantidadEstudiantes() * 18000;
+        return getCantidadEstudiantes() * TARIFA_ESTUDIANTE;
     }
 
     @Override

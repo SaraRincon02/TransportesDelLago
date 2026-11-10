@@ -15,7 +15,19 @@ public class SistemaTransporte {
         this.reservas = new ArrayList<>();
         this.contratantes = new ArrayList<>();
         this.buses = new ArrayList<>();
+        precargarDatos();
     }
+
+    public Contratante buscarContratante(String documento) throws ContratanteNoEncontradoException{
+        for (Contratante c : contratantes){
+            if (c.getDocumento().equalsIgnoreCase(documento)){
+                return c;
+            }
+        }
+        throw new ContratanteNoEncontradoException("No se encontro ningun contratante con el documento: " + documento);
+    }
+
+
 
     private void precargarDatos(){
         buses.add(new Bus("BUS-01", "AAA001", 40));

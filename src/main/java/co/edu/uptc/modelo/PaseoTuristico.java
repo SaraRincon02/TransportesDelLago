@@ -2,6 +2,7 @@ package co.edu.uptc.modelo;
 
 public class PaseoTuristico extends Servicio{
     private double kilometros;
+    private static final double TARIFA_KM = 4500;
 
     public PaseoTuristico(int cantidadHoras, double kilometros){
         super(cantidadHoras);
@@ -22,6 +23,6 @@ public class PaseoTuristico extends Servicio{
 
     @Override
     public double calcularTarifaBase() {
-        return getKilometros() * 4500;
+        return getKilometros() * TARIFA_KM;
     }
 }
