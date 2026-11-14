@@ -1,8 +1,13 @@
 package co.edu.uptc.modelo;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 public class Contratante {
+
+    public static final int DESCUENTO_POR_ANIO = 2;
+    public static final int DESCUENTO_MAXIMO = 15;
+
     private String documento;
     private String nombre;
     private String telefono;
@@ -15,7 +20,9 @@ public class Contratante {
         if (nombre == null || nombre.trim().isEmpty()){
             throw new DatoInvalidoException("El nombre no puede ir vacío.");
         }
-
+        if (fechaRegistro == null){
+            throw new DatoInvalidoException("La fecha desde la que contrata no puede ser nula.");
+        }
 
         this.documento = documento;
         this.nombre = nombre;
@@ -37,5 +44,14 @@ public class Contratante {
 
     public LocalDate getFechaRegistro() {
         return fechaRegistro;
+    }
+
+    public int calcularAntiguedad(LocalDate fecha){
+        long anios = ChronoUnit.YEARS.between(fechaRegistro, fecha);
+        return (int) Math.max(0, anios);
+    }
+
+    public int calcularPorccentajeDescuento(LocalDate fecha){
+        return Math.max(DESCUENTO_MAXIMO, calcularAntiguedad(fecha) * DESCUENTO_POR_ANIO);
     }
 }

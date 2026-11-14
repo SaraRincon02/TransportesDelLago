@@ -3,6 +3,7 @@ package co.edu.uptc.controlador;
 import co.edu.uptc.modelo.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,12 +11,19 @@ public class SistemaTransporte {
     private List<Reserva> reservas;
     private List<Contratante> contratantes;
     private List<Bus> buses;
+    private List<Encomienda> encomiendas;
 
     public SistemaTransporte(){
         this.reservas = new ArrayList<>();
         this.contratantes = new ArrayList<>();
         this.buses = new ArrayList<>();
-        precargarDatos();
+        this.encomiendas = new ArrayList<>();
+    }
+
+    public void inicializarDatos(){
+        if (buses.isEmpty() && contratantes.isEmpty()){
+            precargarDatos();
+        }
     }
 
     public Contratante buscarContratante(String documento) throws ContratanteNoEncontradoException{
@@ -27,6 +35,13 @@ public class SistemaTransporte {
         throw new ContratanteNoEncontradoException("No se encontro ningun contratante con el documento: " + documento);
     }
 
+    public void confirmarReserva(Reserva reserva) throws TransicionInvalidaException{
+        if (reserva.getEstado() == EstadoReserva.CREADA){
+            reserva.setEstado(EstadoReserva.CONFIRMADA);
+        }else{
+            throw new TransicionInvalidaException(reserva.getEstado(), EstadoReserva.CONFIRMADA);
+        }
+    }
 
 
     private void precargarDatos(){

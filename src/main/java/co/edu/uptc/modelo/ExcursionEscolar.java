@@ -1,8 +1,11 @@
 package co.edu.uptc.modelo;
 
 public class ExcursionEscolar extends Servicio implements Asegurable{
+
+    public static final double TARIFA_ESTUDIANTE = 18000;
+    public static final double SEGURO_ESTUDIANTE = 3500;
+
     private int cantidadEstudiantes;
-    private static final double TARIFA_ESTUDIANTE = 18000;
 
     public ExcursionEscolar(int duracionHoras, int cantidadEstudiantes, Bus busAsignado){
         super(duracionHoras);
@@ -26,16 +29,26 @@ public class ExcursionEscolar extends Servicio implements Asegurable{
 
     @Override
     public double calcularTarifaBase() {
-        return getCantidadEstudiantes() * TARIFA_ESTUDIANTE;
+        return cantidadEstudiantes * TARIFA_ESTUDIANTE;
+    }
+
+    @Override
+    public String getNombre() {
+        return "Excursion escolar";
+    }
+
+    @Override
+    public double getParametro() {
+        return cantidadEstudiantes;
     }
 
     @Override
     public double calcularValorSeguro() {
-        return getCantidadEstudiantes() * 3500;
+        return cantidadEstudiantes * SEGURO_ESTUDIANTE;
     }
 
     @Override
     public String obtenerDescripcionPoliza() {
-        return "Póliza estudiantil para " + cantidadEstudiantes + " pasajeros.";
+        return "Póliza estudiantil para " + cantidadEstudiantes + " estudiantes.";
     }
 }

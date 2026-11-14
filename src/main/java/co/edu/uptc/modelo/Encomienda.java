@@ -11,9 +11,18 @@ public class Encomienda implements Asegurable{
         if (codigo == null || codigo.trim().isEmpty()){
             throw new DatoInvalidoException("El código de la encomienda no puede estar vacío.");
         }
+
+        if (remitente == null || remitente.trim().isEmpty()){
+            throw new DatoInvalidoException("El remitente no puede estar vacio.");
+        }
+        if (destinatario == null || destinatario.trim().isEmpty()){
+            throw new DatoInvalidoException("El destinatario no puede estar vacio.");
+        }
+
         if (peso <= 0){
             throw new DatoInvalidoException("El peso de la encomienda debe ser mayor a cero.");
         }
+
         if(valorDeclarado <= 0){
             throw new DatoInvalidoException("El valor declarado debe ser mayor a cero.");
         }
@@ -52,7 +61,7 @@ public class Encomienda implements Asegurable{
 
     @Override
     public String obtenerDescripcionPoliza() {
-        return "Póliza de protección de mercancía. Remitente: " + remitente + " | Destinatario: " + destinatario
-                + " | Valor Declarado: $" + valorDeclarado;
+        return "Póliza de protección de mercancía " + codigo + " Remitente: " + remitente + " | Destinatario: " + destinatario
+                + " | Peso: " + peso + " kg" + " | Valor Declarado: $" + valorDeclarado;
     }
 }

@@ -16,4 +16,11 @@ public abstract class Servicio {
     }
 
     public abstract double calcularTarifaBase();
+
+    public abstract String getNombre();
+
+    public abstract double getParametro();
+
+    public void validarBus(Bus bus){
+    }
 }

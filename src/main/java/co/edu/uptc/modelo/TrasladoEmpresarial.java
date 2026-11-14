@@ -1,9 +1,11 @@
 package co.edu.uptc.modelo;
 
 public class TrasladoEmpresarial extends Servicio{
+
+    public static final double TARIFA_FIJA = 250000;
+    public static final double TARIFA_HORA_ESPERA = 40000;
+
     private int horasDeEspera;
-    private static final double TARIFA_FIJA = 250000;
-    private static final double TARIFA_HORA_ESPERA = 40000;
 
     public TrasladoEmpresarial(int cantidadHoras, int horasDeEspera){
         super(cantidadHoras);
@@ -23,6 +25,16 @@ public class TrasladoEmpresarial extends Servicio{
 
     @Override
     public double calcularTarifaBase() {
-        return TARIFA_FIJA + (TARIFA_HORA_ESPERA * getHorasDeEspera());
+        return TARIFA_FIJA + (TARIFA_HORA_ESPERA * horasDeEspera);
+    }
+
+    @Override
+    public String getNombre() {
+        return "Traslado empresarial";
+    }
+
+    @Override
+    public double getParametro() {
+        return horasDeEspera;
     }
 }
