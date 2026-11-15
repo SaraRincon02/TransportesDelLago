@@ -7,7 +7,7 @@ public class ExcursionEscolar extends Servicio implements Asegurable{
 
     private int cantidadEstudiantes;
 
-    public ExcursionEscolar(int duracionHoras, int cantidadEstudiantes, Bus busAsignado){
+    public ExcursionEscolar(int duracionHoras, int cantidadEstudiantes){
         super(duracionHoras);
 
         if (duracionHoras < 4 || duracionHoras > 10){
@@ -15,9 +15,6 @@ public class ExcursionEscolar extends Servicio implements Asegurable{
         }
         if (cantidadEstudiantes <= 0){
             throw new DatoInvalidoException("La cantidad de estudiantes debe ser mayor a cero.");
-        }
-        if (cantidadEstudiantes > busAsignado.getCapacidad()){
-            throw new DatoInvalidoException("La cantidad de estudiantes supera la capacidad del bus.");
         }
 
         this.cantidadEstudiantes = cantidadEstudiantes;
@@ -40,6 +37,13 @@ public class ExcursionEscolar extends Servicio implements Asegurable{
     @Override
     public double getParametro() {
         return cantidadEstudiantes;
+    }
+
+    @Override
+    public void validarBus(Bus bus) {
+        if (cantidadEstudiantes > bus.getCapacidad()) {
+            throw new DatoInvalidoException("La cantidad de estudiantes supera la capacidad del bus.");
+        }
     }
 
     @Override

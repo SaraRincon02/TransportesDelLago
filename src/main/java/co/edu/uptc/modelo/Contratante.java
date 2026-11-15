@@ -52,6 +52,6 @@ public class Contratante {
     }
 
     public int calcularPorccentajeDescuento(LocalDate fecha){
-        return Math.max(DESCUENTO_MAXIMO, calcularAntiguedad(fecha) * DESCUENTO_POR_ANIO);
+        return Math.min(DESCUENTO_MAXIMO, calcularAntiguedad(fecha) * DESCUENTO_POR_ANIO);
     }
 }

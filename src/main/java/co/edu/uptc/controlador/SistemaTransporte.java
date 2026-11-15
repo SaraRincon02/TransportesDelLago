@@ -9,38 +9,105 @@ import java.util.List;
 
 public class SistemaTransporte {
     private List<Reserva> reservas;
+    private ArchivoTransporte archivo;
     private List<Contratante> contratantes;
     private List<Bus> buses;
     private List<Encomienda> encomiendas;
 
+    private List<Servicio> servicios;
+
     public SistemaTransporte(){
         this.reservas = new ArrayList<>();
+        this.archivo = new ArchivoTransporte();
         this.contratantes = new ArrayList<>();
         this.buses = new ArrayList<>();
         this.encomiendas = new ArrayList<>();
+        this.servicios = new ArrayList<>();
+
+        precargarDatos();
     }
 
-    public void inicializarDatos(){
-        if (buses.isEmpty() && contratantes.isEmpty()){
-            precargarDatos();
+    public void cargar() {
+        this.reservas = new ArrayList<>(archivo.cargar(this.contratantes, this.buses, this.servicios));
+    }
+
+    public void guardar() {
+        archivo.guardar(reservas);
+    }
+
+    public void agregarReserva(Reserva nueva) throws  BusOcupadoException{
+        verificarCruce(nueva.getBus(), nueva.getFechaInicio(), nueva.getFechaFin(), null);
+        reservas.add(nueva);
+    }
+
+    public void reprogramarReserva(Reserva r, LocalDateTime nuevoInicio, Bus nuevoBus) throws TransicionInvalidaException, BusOcupadoException{
+        LocalDateTime nuevoFin = nuevoInicio.plusHours(r.getServicio().getDuracionHoras());
+        verificarCruce(nuevoBus, nuevoInicio, nuevoFin, r);
+        r.reprogramar(nuevoInicio,nuevoBus);
+    }
+
+    public void verificarCruce(Bus bus, LocalDateTime inicio, LocalDateTime fin, Reserva excepcion) throws  BusOcupadoException{
+        for (Reserva r : reservas){
+            if (r != excepcion && r.getBus().equals(bus) && r.ocupaBus()){
+                if (r.seCruzaCon(inicio,fin)){
+                    throw new BusOcupadoException(bus.getPlaca());
+                }
+            }
         }
+    }
+
+    public double calcularIngresos(LocalDateTime f1, LocalDateTime f2){
+        double total = 0;
+        for (Reserva r : reservas){
+            if (r.getEstado() == EstadoReserva.CERRADA && !r.getFechaInicio().isBefore(f1) &&
+                !r.getFechaInicio().isAfter(f2)){
+                total += r.getValorFinal();
+            }
+        }
+        return total;
+    }
+
+    public double calcularTotalPenalidades(){
+        double total = 0;
+        for (Reserva r : reservas){
+            total += r.getPenalidad();
+        }
+        return total;
+    }
+
+    public int[] contarReservasPorEstado(){
+        int[] conteos = new int[EstadoReserva.values().length];
+        for (Reserva r : reservas){
+            conteos[r.getEstado().ordinal()]++;
+        }
+        return conteos;
+    }
+
+    public Bus obtenerBusMasUsado(){
+        Bus masUsado = null;
+        int maxUso = -1;
+        for (Bus b : buses){
+            int contador = 0;
+            for (Reserva r : reservas){
+                if (r.getBus().equals(b) && r.getEstado() != EstadoReserva.CANCELADA){
+                    contador++;
+                }
+            }
+            if (contador > maxUso){
+                maxUso = contador;
+                masUsado = b;
+            }
+        }
+        return masUsado;
     }
 
     public Contratante buscarContratante(String documento) throws ContratanteNoEncontradoException{
         for (Contratante c : contratantes){
-            if (c.getDocumento().equalsIgnoreCase(documento)){
+            if (c.getDocumento().equals(documento)){
                 return c;
             }
         }
-        throw new ContratanteNoEncontradoException("No se encontro ningun contratante con el documento: " + documento);
-    }
-
-    public void confirmarReserva(Reserva reserva) throws TransicionInvalidaException{
-        if (reserva.getEstado() == EstadoReserva.CREADA){
-            reserva.setEstado(EstadoReserva.CONFIRMADA);
-        }else{
-            throw new TransicionInvalidaException(reserva.getEstado(), EstadoReserva.CONFIRMADA);
-        }
+        throw new ContratanteNoEncontradoException("No existe un contratante con el documento:  " + documento);
     }
 
 
