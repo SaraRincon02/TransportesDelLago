@@ -23,7 +23,6 @@ public class SistemaTransporte {
         this.buses = new ArrayList<>();
         this.encomiendas = new ArrayList<>();
         this.servicios = new ArrayList<>();
-
         precargarDatos();
     }
 
@@ -54,6 +53,35 @@ public class SistemaTransporte {
                 }
             }
         }
+    }
+
+    public List<Reserva> getReservas(){
+        return this.reservas;
+    }
+
+    public List<Servicio> getServicios() {
+        return servicios;
+    }
+
+    public List<Contratante> getContratantes() {
+        return contratantes;
+    }
+
+    public List<Bus> getBuses() {
+        return buses;
+    }
+
+    public List<Encomienda> getEncomiendas() {
+        return encomiendas;
+    }
+
+    public Reserva buscarReserva(int id){
+        for (Reserva r : reservas){
+            if (r.getId() == id){
+                return r;
+            }
+        }
+        throw new DatoInvalidoException("No existe una reserva con el ID:  " + id);
     }
 
     public double calcularIngresos(LocalDateTime f1, LocalDateTime f2){
@@ -110,8 +138,27 @@ public class SistemaTransporte {
         throw new ContratanteNoEncontradoException("No existe un contratante con el documento:  " + documento);
     }
 
+    public  Bus buscarBus(String placa){
+        for (Bus b : buses){
+            if (b.getPlaca().equalsIgnoreCase(placa)){
+                return  b;
+            }
+        }
+        throw new DatoInvalidoException("No existe un bus con la placa " + placa);
+    }
 
-    private void precargarDatos(){
+    public Servicio buscarServicio(String nombre){
+        for (Servicio s : servicios){
+            if (s.getNombre().equalsIgnoreCase(nombre.trim())){
+                return s;
+            }
+        }
+        throw new DatoInvalidoException("No existe un servicio con el nombre " + nombre);
+    }
+
+
+    public void precargarDatos(){
+
         buses.add(new Bus("BUS-01", "AAA001", 40));
         buses.add(new Bus("BUS-02", "AAA002", 40));
         buses.add(new Bus("BUS-03", "AAA003", 30));
@@ -123,5 +170,11 @@ public class SistemaTransporte {
         contratantes.add(new Contratante("456", "Empresa JRS", "555-2222", LocalDate.now().minusYears(2)));
         contratantes.add(new Contratante("789", "Familia Rincon", "555-3333", LocalDate.now()));
         contratantes.add(new Contratante("208", "Turismos el Manantial", "555-4444", LocalDate.now().minusYears(5)));
+
+        servicios.add(new PaseoTuristico(8, 120.5));
+        servicios.add(new TrasladoEmpresarial(4, 1));
+        servicios.add(new ExcursionEscolar(6, 30));
+
+        encomiendas.add(new Encomienda("ENC-001", "Juan Perez", "Maria Lopez", 15.5, 150000));
     }
 }
