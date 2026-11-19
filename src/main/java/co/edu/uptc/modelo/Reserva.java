@@ -2,6 +2,7 @@ package co.edu.uptc.modelo;
 
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
+import java.time.Duration;
 
 public class Reserva {
 
@@ -17,6 +18,9 @@ public class Reserva {
 
 
     public Reserva(int id, Contratante contratante, Bus bus, Servicio servicio, LocalDateTime fechaInicio){
+        if (id<=0){
+            throw new DatoInvalidoException("El ID de la reserva debe ser mayor a 0");
+        }
         if (contratante == null || bus == null || servicio == null || fechaInicio == null){
             throw new DatoInvalidoException("Faltan datos obligatorios en la reserva.");
         }
@@ -24,6 +28,7 @@ public class Reserva {
         if (hora < 5 || hora > 23 || (hora == 23 && fechaInicio.getMinute() > 0)){
             throw new DatoInvalidoException("Franja fuera del horario: de 5:00 a.m. a 11:00 p.m.");
         }
+        validarHorario(fechaInicio);
         servicio.validarBus(bus);
         this.id = id;
         this.contratante = contratante;
@@ -84,6 +89,16 @@ public class Reserva {
     public int getId() {
         return id;
     }
+
+    private void validarHorario(LocalDateTime fecha){
+            if (fecha == null) {
+                throw new DatoInvalidoException("La fecha de inicio es obligatoria");
+            }
+            int hora = fecha.getHour();
+            if (hora < 5 || hora > 23 || (hora == 23 && fecha.getMinute() > 0)) {
+                throw new DatoInvalidoException("La salida debe programarse entre las 5:00 a.m. y las 11:00 p.m");
+            }
+        }
 
    public void recalcularValor(){
         double base = servicio.calcularTarifaBase();
