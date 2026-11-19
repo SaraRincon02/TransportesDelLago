@@ -13,7 +13,6 @@ public class SistemaTransporte {
     private List<Contratante> contratantes;
     private List<Bus> buses;
     private List<Encomienda> encomiendas;
-
     private List<Servicio> servicios;
 
     public SistemaTransporte(){
@@ -34,26 +33,98 @@ public class SistemaTransporte {
         archivo.guardar(reservas);
     }
 
-    public void agregarReserva(Reserva nueva) throws  BusOcupadoException{
+    public void agregarBus(Bus nuevoBus){
+        if(nuevoBus == null){
+            throw new DatoInvalidoException("El bus no puede ser nulo");
+        }
+        for (Bus b: buses){
+            if(b.getCodigo().equalsIgnoreCase(nuevoBus.getCodigo()) || b.getPlaca().equalsIgnoreCase(nuevoBus.getPlaca())){
+                throw new DatoInvalidoException("Ya existe un bus con ese codigo o placa");
+            }
+        }
+        buses.add(nuevoBus);
+    }
+
+
+    public void agregarContratante(Contratante nuevoContratante) {
+        if (nuevoContratante == null) {
+            throw new DatoInvalidoException("El contratante no puede ser nulo");
+        }
+
+        for (Contratante c : contratantes) {
+            if (c.getDocumento().equalsIgnoreCase(nuevoContratante.getDocumento())) {
+                throw new DatoInvalidoException("Ya existe un contratante con ese documento");
+            }
+        }
+
+        contratantes.add(nuevoContratante);
+    }
+
+    public void agregarEncomienda(Encomienda nuevaEncomienda) {
+        if (nuevaEncomienda == null) {
+            throw new DatoInvalidoException("La encomienda no puede ser nula");
+        }
+
+        for (Encomienda encomienda : encomiendas) {
+            if (encomienda.getCodigo().equalsIgnoreCase(nuevaEncomienda.getCodigo())) {
+                throw new DatoInvalidoException("Ya existe una encomienda con ese código");
+            }
+        }
+        encomiendas.add(nuevaEncomienda);
+    }
+
+
+
+    public void agregarReserva(Reserva nueva) throws BusOcupadoException{
+        if (nueva ==null){
+            throw new DatoInvalidoException("La reserva no puede ser nula");
+        }
+
+        for (Reserva r : reservas){
+            if (r.getId() == nueva.getId()){
+                throw new DatoInvalidoException("Ya existe una reserva con ese iD");
+            }
+        }
         verificarCruce(nueva.getBus(), nueva.getFechaInicio(), nueva.getFechaFin(), null);
         reservas.add(nueva);
     }
 
     public void reprogramarReserva(Reserva r, LocalDateTime nuevoInicio, Bus nuevoBus) throws TransicionInvalidaException, BusOcupadoException{
+        if (r == null || nuevoInicio == null || nuevoBus == null){
+            throw new DatoInvalidoException("Faltan datos para reprogramar la reserva");
+        }
+
+        if (!reservas.contains(r)) {
+            throw new DatoInvalidoException("La reserva no pertenece al sistema");
+        }
         LocalDateTime nuevoFin = nuevoInicio.plusHours(r.getServicio().getDuracionHoras());
         verificarCruce(nuevoBus, nuevoInicio, nuevoFin, r);
         r.reprogramar(nuevoInicio,nuevoBus);
     }
 
     public void verificarCruce(Bus bus, LocalDateTime inicio, LocalDateTime fin, Reserva excepcion) throws  BusOcupadoException{
-        for (Reserva r : reservas){
-            if (r != excepcion && r.getBus().equals(bus) && r.ocupaBus()){
-                if (r.seCruzaCon(inicio,fin)){
+        if (bus == null || inicio == null || fin == null) {
+            throw new DatoInvalidoException("Los datos para verificar la disponibilidad son obligatorios");
+        }
+
+        if (!fin.isAfter(inicio)) {
+            throw new DatoInvalidoException("La fecha final debe ser posterior a la inicial");
+        }
+
+        for (Reserva reserva : reservas) {
+            boolean mismoBus = reserva.getBus().getCodigo().equalsIgnoreCase(bus.getCodigo()
+            );
+
+            if (reserva != excepcion && mismoBus && reserva.ocupaBus()) {
+                if (reserva.seCruzaCon(inicio, fin)) {
                     throw new BusOcupadoException(bus.getPlaca());
                 }
             }
         }
     }
+
+
+
 
     public List<Reserva> getReservas(){
         return this.reservas;
@@ -84,14 +155,19 @@ public class SistemaTransporte {
         throw new DatoInvalidoException("No existe una reserva con el ID:  " + id);
     }
 
-    public double calcularIngresos(LocalDateTime f1, LocalDateTime f2){
+    public double calcularIngresos(LocalDateTime fechaInicial, LocalDateTime fechaFinal) {
+        if (fechaInicial == null || fechaFinal == null || fechaFinal.isBefore(fechaInicial)) {
+            throw new DatoInvalidoException("El rango de fechas no es válido.");
+        }
+
         double total = 0;
-        for (Reserva r : reservas){
-            if (r.getEstado() == EstadoReserva.CERRADA && !r.getFechaInicio().isBefore(f1) &&
-                !r.getFechaInicio().isAfter(f2)){
-                total += r.getValorFinal();
+
+        for (Reserva reserva : reservas) {
+            if (reserva.getEstado() == EstadoReserva.CERRADA && !reserva.getFechaInicio().isBefore(fechaInicial) && !reserva.getFechaInicio().isAfter(fechaFinal)) {
+                total += reserva.getValorFinal();
             }
         }
+
         return total;
     }
 
@@ -130,6 +206,10 @@ public class SistemaTransporte {
     }
 
     public Contratante buscarContratante(String documento) throws ContratanteNoEncontradoException{
+
+        if (documento == null || documento.trim().isEmpty()){
+            throw new DatoInvalidoException("Debe ingresar el documento del contratante");
+        }
         for (Contratante c : contratantes){
             if (c.getDocumento().equals(documento)){
                 return c;
@@ -139,6 +219,9 @@ public class SistemaTransporte {
     }
 
     public  Bus buscarBus(String placa){
+        if (placa == null || placa.trim().isEmpty()) {
+            throw new DatoInvalidoException("Debe ingresar la placa del bus");
+        }
         for (Bus b : buses){
             if (b.getPlaca().equalsIgnoreCase(placa)){
                 return  b;
@@ -148,6 +231,9 @@ public class SistemaTransporte {
     }
 
     public Servicio buscarServicio(String nombre){
+        if (nombre == null || nombre.trim().isEmpty()) {
+            throw new DatoInvalidoException("Debe ingresar el servicio");
+        }
         for (Servicio s : servicios){
             if (s.getNombre().equalsIgnoreCase(nombre.trim())){
                 return s;
