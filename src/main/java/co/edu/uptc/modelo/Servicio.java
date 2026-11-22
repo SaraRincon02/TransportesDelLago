@@ -19,8 +19,13 @@ public abstract class Servicio {
 
     public abstract String getNombre();
 
+    public abstract String getTipoPersistencia();
+
     public abstract double getParametro();
 
-    public void validarBus(Bus bus){
+    public void validarBus(Bus bus) {
+        if (bus == null) {
+            throw new DatoInvalidoException("El bus es obligatorio.");
+        }
     }
 }

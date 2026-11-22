@@ -34,6 +34,11 @@ public class TrasladoEmpresarial extends Servicio{
     }
 
     @Override
+    public String getTipoPersistencia() {
+        return "TRASLADO_EMPRESARIAL";
+    }
+
+    @Override
     public double getParametro() {
         return horasDeEspera;
     }

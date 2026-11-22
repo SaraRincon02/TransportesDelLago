@@ -26,6 +26,8 @@ public class ArchivoTransporte {
                         r.getContratante().getDocumento() + SEP +
                         r.getBus().getPlaca() + SEP +
                         r.getServicio().getNombre() + SEP +
+                        r.getServicio().getDuracionHoras() + SEP +
+                        r.getServicio().getParametro() + SEP +
                         r.getFechaInicio().toString() + SEP +
                         r.getFechaFin().toString() + SEP +
                         r.getEstado().name() + SEP +
@@ -95,6 +97,15 @@ public class ArchivoTransporte {
     private Servicio buscarServicio(List<Servicio> lista, String id) {
         for (Servicio s : lista) { if (s.getNombre().equals(id)) return s; }
         return null;
+    }
+
+    private Servicio crearServicio(String tipo, int duracion, double parametro) {
+        return switch (tipo) {
+            case "PASEO_TURISTICO" -> new PaseoTuristico(duracion, parametro);
+            case "EXCURSION_ESCOLAR" -> new ExcursionEscolar(duracion, (int) parametro);
+            case "TRASLADO_EMPRESARIAL" -> new TrasladoEmpresarial(duracion, (int) parametro);
+            default -> throw new DatoInvalidoException("El tipo de servicio guardado no existe");
+        };
     }
 }
 

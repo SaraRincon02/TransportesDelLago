@@ -34,6 +34,11 @@ public class PaseoTuristico extends Servicio{
     }
 
     @Override
+    public String getTipoPersistencia() {
+        return "PASEO_TURISTICO";
+    }
+
+    @Override
     public double getParametro() {
         return kilometros;
     }

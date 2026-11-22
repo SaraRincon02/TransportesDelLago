@@ -35,12 +35,19 @@ public class ExcursionEscolar extends Servicio implements Asegurable{
     }
 
     @Override
+    public String getTipoPersistencia() {
+        return "EXCURSION_ESCOLAR";
+    }
+
+
+    @Override
     public double getParametro() {
         return cantidadEstudiantes;
     }
 
     @Override
     public void validarBus(Bus bus) {
+        super.validarBus(bus);
         if (cantidadEstudiantes > bus.getCapacidad()) {
             throw new DatoInvalidoException("La cantidad de estudiantes supera la capacidad del bus.");
         }

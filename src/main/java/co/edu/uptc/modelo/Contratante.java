@@ -47,6 +47,9 @@ public class Contratante {
     }
 
     public int calcularAntiguedad(LocalDate fecha){
+        if (fecha ==null ){
+            throw new DatoInvalidoException("La fecha para calcular antigüedad es obligatoria");
+        }
         long anios = ChronoUnit.YEARS.between(fechaRegistro, fecha);
         return (int) Math.max(0, anios);
     }
