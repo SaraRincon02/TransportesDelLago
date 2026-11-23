@@ -1,5 +1,7 @@
 package co.edu.uptc.modelo;
-
+/**
+ * Servicio de excursión escolar cobrado por estudiante. Implementa {@link Asegurable}.
+ */
 public class ExcursionEscolar extends Servicio implements Asegurable{
 
     public static final double TARIFA_ESTUDIANTE = 18000;
@@ -7,6 +9,11 @@ public class ExcursionEscolar extends Servicio implements Asegurable{
 
     private int cantidadEstudiantes;
 
+    /**
+     * Crea una excursión escolar validando duración (4 a 10 horas) y cantidad de estudiantes.
+     * @param duracionHoras duración en horas.
+     * @param cantidadEstudiantes número de estudiantes asistentes.
+     */
     public ExcursionEscolar(int duracionHoras, int cantidadEstudiantes){
         super(duracionHoras);
 
@@ -20,6 +27,7 @@ public class ExcursionEscolar extends Servicio implements Asegurable{
         this.cantidadEstudiantes = cantidadEstudiantes;
     }
 
+    /** @return cantidad de estudiantes inscritos en la excursión. */
     public int getCantidadEstudiantes() {
         return cantidadEstudiantes;
     }

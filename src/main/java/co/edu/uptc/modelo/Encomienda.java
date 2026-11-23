@@ -1,5 +1,8 @@
 package co.edu.uptc.modelo;
-
+/**
+ * Representa el despacho de una encomienda independiente de los viajes.
+ * Implementa {@link Asegurable} para calcular el seguro sobre el valor declarado.
+ */
 public class Encomienda implements Asegurable{
     private String codigo;
     private String remitente;
@@ -7,6 +10,15 @@ public class Encomienda implements Asegurable{
     private double peso;
     private double valorDeclarado;
 
+    /**
+     * Construye una nueva encomienda validando todos sus campos obligatorios.
+     * @param codigo código único de la encomienda.
+     * @param remitente nombre de quien envía.
+     * @param destinatario nombre de quien recibe.
+     * @param peso peso del paquete en kilogramos.
+     * @param valorDeclarado valor comercial declarado en pesos.
+     * @throws DatoInvalidoException si algún texto está vacío o peso/valor son menores o iguales a cero.
+     */
     public Encomienda(String codigo, String remitente, String destinatario, double peso, double valorDeclarado){
         if (codigo == null || codigo.trim().isEmpty()){
             throw new DatoInvalidoException("El código de la encomienda no puede estar vacío.");
@@ -33,22 +45,27 @@ public class Encomienda implements Asegurable{
         this.valorDeclarado = valorDeclarado;
     }
 
+    /** @return código único de la encomienda. */
     public String getCodigo() {
         return codigo;
     }
 
+    /** @return nombre del remitente. */
     public String getRemitente() {
         return remitente;
     }
 
+    /** @return nombre del destinatario. */
     public String getDestinatario() {
         return destinatario;
     }
 
+    /** @return peso en kilogramos. */
     public double getPeso() {
         return peso;
     }
 
+    /** @return valor declarado en pesos. */
     public double getValorDeclarado() {
         return valorDeclarado;
     }

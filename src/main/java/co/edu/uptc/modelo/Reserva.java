@@ -3,8 +3,10 @@ package co.edu.uptc.modelo;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDateTime;
-
-
+/**
+ * Representa la reserva de un bus para un contratante y un servicio en una franja horaria.
+ * Controla las transiciones de estado, el cálculo tarifario y el cruce de horarios.
+ */
 public class Reserva {
     private int id;
     private Contratante contratante;
@@ -17,7 +19,16 @@ public class Reserva {
     private double penalidad;
     private LocalDateTime fechaCierre;
 
-
+    /**
+     * Crea una nueva reserva en estado CREADA, validando horario de operación (5:00 a.m. a 11:00 p.m.)
+     * y calculando su valor final.
+     * @param id identificador numérico único de la reserva.
+     * @param contratante cliente que solicita el servicio.
+     * @param bus vehículo asignado.
+     * @param servicio tipo de viaje contratado.
+     * @param fechaInicio fecha y hora de salida.
+     * @throws DatoInvalidoException si algún parámetro es nulo o está fuera de las reglas de negocio.
+     */
     public Reserva(int id, Contratante contratante, Bus bus, Servicio servicio, LocalDateTime fechaInicio){
         if (id<=0){
             throw new DatoInvalidoException("El ID de la reserva debe ser mayor a 0");
@@ -40,6 +51,18 @@ public class Reserva {
         recalcularValor();
     }
 
+    /**
+     * Reconstruye una reserva existente desde persistencia sin fecha de cierre.
+     * @param id identificador de la reserva.
+     * @param contratante cliente asociado.
+     * @param bus vehículo asignado.
+     * @param servicio servicio contratado.
+     * @param fechaInicio fecha y hora de inicio.
+     * @param fechaFin fecha y hora de finalización.
+     * @param estado estado actual de la reserva.
+     * @param valorFinal valor total calculado.
+     * @param penalidad valor de penalidad registrada.
+     */
     public Reserva(int id, Contratante contratante, Bus bus, Servicio servicio, LocalDateTime fechaInicio,
                    LocalDateTime fechaFin, EstadoReserva estado, double valorFinal, double penalidad) {
         if (id <= 0 || contratante == null || bus == null || servicio == null || fechaInicio == null || fechaFin == null || estado == null) {
@@ -64,6 +87,19 @@ public class Reserva {
         this.fechaCierre = null;
     }
 
+    /**
+     * Reconstruye una reserva existente desde persistencia incluyendo su fecha de cierre.
+     * @param id identificador de la reserva.
+     * @param contratante cliente asociado.
+     * @param bus vehículo asignado.
+     * @param servicio servicio contratado.
+     * @param fechaInicio fecha y hora de inicio.
+     * @param fechaFin fecha y hora de finalización.
+     * @param estado estado actual de la reserva.
+     * @param valorFinal valor total calculado.
+     * @param penalidad valor de penalidad registrada.
+     * @param fechaCierre fecha y hora en que se cerró el viaje (puede ser nula).
+     */
     public Reserva(int id, Contratante contratante, Bus bus, Servicio servicio,
                    LocalDateTime fechaInicio, LocalDateTime fechaFin,
                    EstadoReserva estado, double valorFinal, double penalidad,
@@ -75,42 +111,52 @@ public class Reserva {
         this.fechaCierre = fechaCierre;
     }
 
+    /** @return contratante de la reserva. */
     public Contratante getContratante() {
         return contratante;
     }
 
+    /** @return bus asignado a la reserva. */
     public Bus getBus() {
         return bus;
     }
 
+    /** @return servicio contratado. */
     public Servicio getServicio() {
         return servicio;
     }
 
+    /** @return fecha y hora de salida. */
     public LocalDateTime getFechaInicio() {
         return fechaInicio;
     }
 
+    /** @return fecha y hora estimada de llegada. */
     public LocalDateTime getFechaFin() {
         return fechaFin;
     }
 
+    /** @return estado actual de la reserva. */
     public EstadoReserva getEstado() {
         return estado;
     }
 
+    /** @return valor final calculado en pesos. */
     public double getValorFinal() {
         return valorFinal;
     }
 
+    /** @return penalidad cobrada en caso de cancelación tardía. */
     public double getPenalidad() {
         return penalidad;
     }
 
+    /** @return identificador único de la reserva. */
     public int getId() {
         return id;
     }
 
+    /** @return fecha y hora de cierre del viaje, o {@code null} si no está cerrada. */
     public LocalDateTime getFechaCierre() {
         return fechaCierre;
     }
@@ -126,6 +172,11 @@ public class Reserva {
         }
 
         double RECARGO = 1.15;
+
+    /**
+     * Calcula el valor final aplicando recargo único del 15% (nocturno o fin de semana)
+     * y descuento por antigüedad del contratante (máximo 15%).
+     */
    public void recalcularValor(){
         double base = servicio.calcularTarifaBase();
         DayOfWeek dia = fechaInicio.getDayOfWeek();
@@ -139,6 +190,10 @@ public class Reserva {
        valorFinal = Math.round(Math.max(0, Math.min(valorCalculado, conRecargo)));
    }
 
+    /**
+     * Cambia el estado de la reserva de CREADA a CONFIRMADA.
+     * @throws TransicionInvalidaException si la reserva no está en estado CREADA.
+     */
    public void confirmar() throws  TransicionInvalidaException{
         if (estado != EstadoReserva.CREADA){
             throw new TransicionInvalidaException(estado, EstadoReserva.CONFIRMADA);
@@ -146,6 +201,12 @@ public class Reserva {
         estado = EstadoReserva.CONFIRMADA;
    }
 
+    /**
+     * Cancela una reserva CREADA o CONFIRMADA antes de su salida.
+     * Si estaba CONFIRMADA y faltan menos de 24 horas, aplica penalidad del 30%.
+     * @param ahora fecha y hora en que se realiza la cancelación.
+     * @throws TransicionInvalidaException si el estado actual no permite cancelar.
+     */
     public void cancelar(LocalDateTime ahora) throws  TransicionInvalidaException {
         if (ahora == null) {
             throw new DatoInvalidoException("Debe indicar la fecha y hora de cancelación");
@@ -166,6 +227,11 @@ public class Reserva {
         estado = EstadoReserva.CANCELADA;
     }
 
+    /**
+     * Inicia el viaje pasando de CONFIRMADA a EN_CURSO el mismo día programado.
+     * @param ahora fecha y hora actual de salida.
+     * @throws TransicionInvalidaException si el estado no es CONFIRMADA o no es el mismo día.
+     */
     public void iniciar(LocalDateTime ahora) throws TransicionInvalidaException {
         if (ahora == null) {
             throw new DatoInvalidoException("Debe indicar la fecha y hora de inicio");
@@ -180,6 +246,11 @@ public class Reserva {
         estado = EstadoReserva.EN_CURSO;
     }
 
+    /**
+     * Finaliza el viaje pasando de EN_CURSO a CERRADA y registra la fecha de cierre.
+     * @param ahora fecha y hora de finalización.
+     * @throws TransicionInvalidaException si la reserva no está EN_CURSO.
+     */
     public void cerrar(LocalDateTime ahora) throws TransicionInvalidaException {
         if (ahora == null) {
             throw new DatoInvalidoException("Debe indicar la fecha y hora de cierre");
@@ -193,6 +264,12 @@ public class Reserva {
     }
 
 
+    /**
+     * Reprograma la fecha de salida y/o el bus asignado sin cambiar el estado actual.
+     * @param nuevoInicio nueva fecha y hora de salida.
+     * @param nuevoBus nuevo vehículo asignado.
+     * @throws TransicionInvalidaException si la reserva no está CREADA o CONFIRMADA.
+     */
     public void reprogramar(LocalDateTime nuevoInicio, Bus nuevoBus) throws TransicionInvalidaException {
         if (estado != EstadoReserva.CREADA && estado != EstadoReserva.CONFIRMADA) {
             throw new TransicionInvalidaException("Solo se reprograma reservas CREADA o CONFIRMADA");
@@ -211,6 +288,13 @@ public class Reserva {
         recalcularValor();
     }
 
+    /**
+     * Determina si la franja horaria de esta reserva se cruza con otro intervalo.
+     * Las reservas contiguas no se consideran cruzadas.
+     * @param otroInicio inicio del otro intervalo.
+     * @param otroFin fin del otro intervalo.
+     * @return {@code true} si existe solapamiento horario; {@code false} en caso contrario.
+     */
     public boolean seCruzaCon(LocalDateTime otroInicio, LocalDateTime otroFin) {
         if (otroInicio == null || otroFin == null || !otroFin.isAfter(otroInicio)) {
             throw new DatoInvalidoException("El intervalo de fechas no es válido");
@@ -219,7 +303,10 @@ public class Reserva {
         return fechaInicio.isBefore(otroFin) && otroInicio.isBefore(fechaFin);
     }
 
-
+    /**
+     * Indica si la reserva mantiene ocupado el bus (toda reserva no cancelada).
+     * @return {@code true} si el estado es distinto de CANCELADA.
+     */
     public boolean ocupaBus(){
         return  estado != EstadoReserva.CANCELADA;
     }

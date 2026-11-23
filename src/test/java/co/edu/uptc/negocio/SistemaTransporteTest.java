@@ -10,7 +10,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
-
+/** Pruebas unitarias de las reglas de negocio y cálculos de Transportes del Lago. */
 public class SistemaTransporteTest {
 
     @TempDir

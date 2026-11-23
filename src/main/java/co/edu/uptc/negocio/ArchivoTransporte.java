@@ -11,7 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
-
+/**
+ * Gestiona la lectura y escritura en archivos de texto plano para persistir
+ * buses, contratantes, encomiendas y reservas.
+ */
 public class ArchivoTransporte {
     private final Path carpeta;
     private final String SEP = ";";
@@ -21,6 +24,10 @@ public class ArchivoTransporte {
     private final Path archivoBuses;
     private final Path archivoEncomiendas;
 
+    /**
+     * Inicializa las rutas de los archivos de datos dentro del directorio indicado.
+     * @param carpeta ruta de la carpeta de almacenamiento.
+     */
     public ArchivoTransporte(Path carpeta) {
         if (carpeta == null) {
             throw new DatoInvalidoException("El directorio de datos es obligatorio");
@@ -32,6 +39,10 @@ public class ArchivoTransporte {
         this.archivoEncomiendas = carpeta.resolve("encomiendas.txt");
     }
 
+    /**
+     * Verifica si todos los archivos de persistencia existen en disco.
+     * @return {@code true} si existen los cuatro archivos de datos.
+     */
     public boolean existe() {
         return Files.exists(archivoReservas)
                 && Files.exists(archivoContratantes)
@@ -39,6 +50,13 @@ public class ArchivoTransporte {
                 && Files.exists(archivoEncomiendas);
     }
 
+    /**
+     * Guarda en disco todas las entidades del sistema.
+     * @param reservas lista de reservas.
+     * @param contratantes lista de contratantes.
+     * @param buses lista de buses.
+     * @param encomiendas lista de encomiendas.
+     */
     public void guardarTodo(List<Reserva> reservas, List<Contratante> contratantes,
                         List<Bus> buses, List<Encomienda> encomiendas) {
         try {
@@ -99,6 +117,7 @@ public class ArchivoTransporte {
         Files.write(archivoEncomiendas, lineas);
     }
 
+    /** @return lista de contratantes cargados desde archivo. */
     public List<Contratante> cargarContratantes() {
         List<Contratante> lista = new ArrayList<>();
         if (!Files.exists(archivoContratantes)) return lista;
@@ -117,6 +136,7 @@ public class ArchivoTransporte {
         return lista;
     }
 
+    /** @return lista de buses cargados desde archivo. */
     public List<Bus> cargarBuses() {
         List<Bus> lista = new ArrayList<>();
         if (!Files.exists(archivoBuses)) return lista;
@@ -135,6 +155,7 @@ public class ArchivoTransporte {
         return lista;
     }
 
+    /** @return lista de encomiendas cargadas desde archivo. */
     public List<Encomienda> cargarEncomiendas() {
         List<Encomienda> lista = new ArrayList<>();
         if (!Files.exists(archivoEncomiendas)) return lista;
@@ -153,6 +174,13 @@ public class ArchivoTransporte {
         }
         return lista;
     }
+
+    /**
+     * Carga y reconstruye las reservas vinculándolas con sus contratantes y buses.
+     * @param contratantes lista de contratantes disponibles.
+     * @param buses lista de buses disponibles.
+     * @return lista de reservas cargadas.
+     */
     public List<Reserva> cargarReservas(List<Contratante> contratantes,
                                         List<Bus> buses) {
         List<Reserva> reservas = new ArrayList<>();

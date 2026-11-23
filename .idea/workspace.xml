@@ -4,7 +4,29 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="913d80d1-c5d1-4b26-9c5b-c2101551ce2a" name="Changes" comment="avances casi casi finales del proyecto" />
+    <list default="true" id="913d80d1-c5d1-4b26-9c5b-c2101551ce2a" name="Changes" comment="avances casi casi finales del proyecto">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/co/edu/uptc/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/co/edu/uptc/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/co/edu/uptc/modelo/Asegurable.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/co/edu/uptc/modelo/Asegurable.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/co/edu/uptc/modelo/Bus.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/co/edu/uptc/modelo/Bus.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/co/edu/uptc/modelo/Contratante.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/co/edu/uptc/modelo/Contratante.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/co/edu/uptc/modelo/DatoInvalidoException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/co/edu/uptc/modelo/DatoInvalidoException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/co/edu/uptc/modelo/Encomienda.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/co/edu/uptc/modelo/Encomienda.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/co/edu/uptc/modelo/EstadoReserva.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/co/edu/uptc/modelo/EstadoReserva.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/co/edu/uptc/modelo/ExcursionEscolar.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/co/edu/uptc/modelo/ExcursionEscolar.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/co/edu/uptc/modelo/PaseoTuristico.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/co/edu/uptc/modelo/PaseoTuristico.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/co/edu/uptc/modelo/Reserva.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/co/edu/uptc/modelo/Reserva.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/co/edu/uptc/modelo/Servicio.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/co/edu/uptc/modelo/Servicio.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/co/edu/uptc/modelo/TransicionInvalidaException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/co/edu/uptc/modelo/TransicionInvalidaException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/co/edu/uptc/modelo/TrasladoEmpresarial.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/co/edu/uptc/modelo/TrasladoEmpresarial.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/co/edu/uptc/negocio/ArchivoTransporte.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/co/edu/uptc/negocio/ArchivoTransporte.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/co/edu/uptc/negocio/BusOcupadoException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/co/edu/uptc/negocio/BusOcupadoException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/co/edu/uptc/negocio/ContratanteNoEncontradoException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/co/edu/uptc/negocio/ContratanteNoEncontradoException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/co/edu/uptc/negocio/SistemaTransporte.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/co/edu/uptc/negocio/SistemaTransporte.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/co/edu/uptc/presentacion/MenuConsola.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/co/edu/uptc/presentacion/MenuConsola.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/co/edu/uptc/negocio/SistemaTransporteTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/co/edu/uptc/negocio/SistemaTransporteTest.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -29,7 +51,7 @@
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/SaraRincon02/TransportesDelLago.git&quot;,
-    &quot;accountId&quot;: &quot;d0d82a07-22c3-428c-92a2-9bb14dcc1fd3&quot;
+    &quot;accountId&quot;: &quot;be87118f-0802-44a0-bc5e-969f547a586c&quot;
   }
 }</component>
   <component name="ProjectColorInfo">{
@@ -46,6 +68,7 @@
     "Application.Main.executor": "Run",
     "Downloaded.Files.Path.Enabled": "false",
     "JUnit.SistemaTransporteTest.executor": "Run",
+    "Maven.TransportesDelLago [clean].executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "Repository.Attach.Annotations": "false",
     "Repository.Attach.JavaDocs": "false",
@@ -66,11 +89,47 @@
     "settings.editor.selected.configurable": "reference.projectsettings.compiler.javacompiler"
   }
 }]]></component>
+  <component name="RunManager" selected="JUnit.SistemaTransporteTest">
+    <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="co.edu.uptc.Main" />
+      <module name="TransportesDelLago" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="co.edu.uptc.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="SistemaTransporteTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="TransportesDelLago" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="co.edu.uptc.negocio.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="co.edu.uptc.negocio" />
+      <option name="MAIN_CLASS_NAME" value="co.edu.uptc.negocio.SistemaTransporteTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="JUnit.SistemaTransporteTest" />
+        <item itemvalue="Application.Main" />
+      </list>
+    </recent_temporary>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-30f59d01ecdd-34e2839f716b-intellij.indexing.shared.core-IU-262.9437.185" />
-        <option value="bundled-js-predefined-d6986cc7102b-4abd2a77f808-JavaScript-IU-262.9437.185" />
+        <option value="bundled-jdk-30f59d01ecdd-a203e0a19954-intellij.indexing.shared.core-IU-262.10968.63" />
+        <option value="bundled-js-predefined-d6986cc7102b-4abd2a77f808-JavaScript-IU-262.10968.63" />
       </set>
     </attachedChunks>
   </component>

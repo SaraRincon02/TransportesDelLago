@@ -1,5 +1,7 @@
 package co.edu.uptc.modelo;
-
+/**
+ * Servicio de traslado empresarial con tarifa fija más cobro por horas de espera.
+ */
 public class TrasladoEmpresarial extends Servicio{
 
     public static final double TARIFA_FIJA = 250000;
@@ -7,6 +9,11 @@ public class TrasladoEmpresarial extends Servicio{
 
     private int horasDeEspera;
 
+    /**
+     * Crea un traslado empresarial validando duración (2 a 8 horas) y horas de espera no negativas.
+     * @param cantidadHoras duración del traslado en horas.
+     * @param horasDeEspera horas adicionales de espera del conductor.
+     */
     public TrasladoEmpresarial(int cantidadHoras, int horasDeEspera){
         super(cantidadHoras);
 
@@ -19,6 +26,7 @@ public class TrasladoEmpresarial extends Servicio{
         this.horasDeEspera = horasDeEspera;
     }
 
+    /** @return horas de espera contratadas. */
     public int getHorasDeEspera() {
         return horasDeEspera;
     }

@@ -1,11 +1,18 @@
 package co.edu.uptc.modelo;
-
+/**
+ * Servicio de paseo turístico cobrado por kilómetro recorrido (ida y vuelta).
+ */
 public class PaseoTuristico extends Servicio{
 
     public static final double TARIFA_KM = 4500;
 
     private double kilometros;
 
+    /**
+     * Crea un paseo turístico validando duración (4 a 12 horas) y kilómetros positivos.
+     * @param cantidadHoras duración en horas.
+     * @param kilometros distancia total ida y vuelta en kilómetros.
+     */
     public PaseoTuristico(int cantidadHoras, double kilometros){
         super(cantidadHoras);
 
@@ -19,6 +26,7 @@ public class PaseoTuristico extends Servicio{
         this.kilometros = kilometros;
     }
 
+    /** @return kilómetros totales del recorrido. */
     public double getKilometros() {
         return kilometros;
     }

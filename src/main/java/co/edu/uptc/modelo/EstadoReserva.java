@@ -1,5 +1,7 @@
 package co.edu.uptc.modelo;
-
+/**
+ * Representa los posibles estados del ciclo de vida de una reserva.
+ */
 public enum EstadoReserva {
 
     CREADA("Viaje creado"),
@@ -14,6 +16,11 @@ public enum EstadoReserva {
         this.texto = texto;
     }
 
+    // ...
+    /**
+     * Obtiene la descripción legible del estado.
+     * @return texto descriptivo del estado.
+     */
     public String getTexto() {
         return texto;
     }

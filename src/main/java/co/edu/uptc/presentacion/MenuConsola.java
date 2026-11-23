@@ -13,8 +13,12 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Scanner;
-
+/**
+ * Capa de presentación por consola de Transportes del Lago.
+ * Gestiona la interacción con el usuario mediante {@code Scanner} y cuadros de diálogo {@code JOptionPane}.
+ */
 public class MenuConsola {
+
     private static final DateTimeFormatter FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     private static final DateTimeFormatter FECHA_SOLA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final String TITULO = "Transportes del Lago";
@@ -23,10 +27,15 @@ public class MenuConsola {
     private final Scanner scanner = new Scanner(System.in);
     private SistemaTransporte sistema;
 
+    /**
+     * Construye una nueva instancia del menú de consola.
+     */
     public MenuConsola() {
-
     }
 
+    /**
+     * Carga los datos del sistema e inicia el ciclo principal de opciones en consola.
+     */
     public void iniciar() {
         try {
             this.sistema = new SistemaTransporte(CARPETA_DATOS);
