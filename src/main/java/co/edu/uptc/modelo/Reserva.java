@@ -125,12 +125,14 @@ public class Reserva {
             }
         }
 
+        double RECARGO = 1.15;
    public void recalcularValor(){
         double base = servicio.calcularTarifaBase();
         DayOfWeek dia = fechaInicio.getDayOfWeek();
 
         boolean aplicarRecargo = (dia == DayOfWeek.SATURDAY || dia == DayOfWeek.SUNDAY || fechaInicio.getHour() >= 18);
-        double conRecargo = aplicarRecargo ? base * 1.15 : base;
+
+       double conRecargo = aplicarRecargo ? base * RECARGO : base;
 
         int descuento = contratante.calcularPorccentajeDescuento(fechaInicio.toLocalDate());
        double valorCalculado = conRecargo * (1 - descuento / 100.0);
@@ -156,9 +158,10 @@ public class Reserva {
         }
 
         penalidad = 0.0;
+        double Penalidad=0.30;
 
         if (estado == EstadoReserva.CONFIRMADA && Duration.between(ahora, fechaInicio).compareTo(Duration.ofHours(24)) < 0) {
-            penalidad = Math.round(valorFinal * 0.30);
+            penalidad = Math.round(valorFinal * Penalidad);
         }
         estado = EstadoReserva.CANCELADA;
     }
@@ -171,14 +174,11 @@ public class Reserva {
             throw new TransicionInvalidaException(estado, EstadoReserva.EN_CURSO);
         }
         if (!ahora.toLocalDate().equals(fechaInicio.toLocalDate())) {
-            throw new DatoInvalidoException("Solo se puede iniciar el mismo día de la reserva");
-        }
-        if (ahora.isBefore(fechaInicio)) {
-            throw new DatoInvalidoException("No se puede iniciar antes de la hora programada");
+
+            throw new TransicionInvalidaException("Solo se puede iniciar el mismo día de la reserva");
         }
         estado = EstadoReserva.EN_CURSO;
     }
-
 
     public void cerrar(LocalDateTime ahora) throws TransicionInvalidaException {
         if (ahora == null) {
@@ -187,9 +187,7 @@ public class Reserva {
         if (estado != EstadoReserva.EN_CURSO) {
             throw new TransicionInvalidaException(estado, EstadoReserva.CERRADA);
         }
-        if (ahora.isBefore(fechaInicio)) {
-            throw new DatoInvalidoException("La fecha de cierre no puede ser anterior al inicio");
-        }
+
         fechaCierre = ahora;
         estado = EstadoReserva.CERRADA;
     }

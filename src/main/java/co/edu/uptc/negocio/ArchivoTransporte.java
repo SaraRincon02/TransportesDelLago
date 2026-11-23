@@ -1,4 +1,4 @@
-package co.edu.uptc.controlador;
+package co.edu.uptc.negocio;
 
 import co.edu.uptc.modelo.*;
 
@@ -9,6 +9,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.BiFunction;
 
 public class ArchivoTransporte {
     private final Path carpeta;
@@ -31,10 +33,13 @@ public class ArchivoTransporte {
     }
 
     public boolean existe() {
-        return Files.exists(archivoReservas);
+        return Files.exists(archivoReservas)
+                && Files.exists(archivoContratantes)
+                && Files.exists(archivoBuses)
+                && Files.exists(archivoEncomiendas);
     }
 
-    public void guardar(List<Reserva> reservas, List<Contratante> contratantes,
+    public void guardarTodo(List<Reserva> reservas, List<Contratante> contratantes,
                         List<Bus> buses, List<Encomienda> encomiendas) {
         try {
             Files.createDirectories(carpeta);
@@ -101,6 +106,9 @@ public class ArchivoTransporte {
             for (String linea : Files.readAllLines(archivoContratantes)) {
                 if (linea.trim().isEmpty()) continue;
                 String[] d = linea.split(SEP, -1);
+                if (d.length != 4) {
+                    throw new DatoInvalidoException("Línea dañada en contratantes: " + linea);
+                }
                 lista.add(new Contratante(d[0], d[1], d[2], LocalDate.parse(d[3])));
             }
         } catch (IOException e) {
@@ -116,6 +124,9 @@ public class ArchivoTransporte {
             for (String linea : Files.readAllLines(archivoBuses)) {
                 if (linea.trim().isEmpty()) continue;
                 String[] d = linea.split(SEP, -1);
+                if (d.length != 3) {
+                    throw new DatoInvalidoException("Línea dañada en buses: " + linea);
+                }
                 lista.add(new Bus(d[0], d[1], Integer.parseInt(d[2])));
             }
         } catch (IOException e) {
@@ -131,6 +142,9 @@ public class ArchivoTransporte {
             for (String linea : Files.readAllLines(archivoEncomiendas)) {
                 if (linea.trim().isEmpty()) continue;
                 String[] d = linea.split(SEP, -1);
+                if (d.length != 5) {
+                    throw new DatoInvalidoException("Línea dañada en encomiendas: " + linea);
+                }
                 lista.add(new Encomienda(d[0], d[1], d[2],
                         Double.parseDouble(d[3]), Double.parseDouble(d[4])));
             }
@@ -139,7 +153,6 @@ public class ArchivoTransporte {
         }
         return lista;
     }
-
     public List<Reserva> cargarReservas(List<Contratante> contratantes,
                                         List<Bus> buses) {
         List<Reserva> reservas = new ArrayList<>();
@@ -186,7 +199,9 @@ public class ArchivoTransporte {
             if (c.getDocumento().equals(id)) {
                 return c;
             }
+
         }
+
 
         return null;
     }
@@ -202,13 +217,16 @@ public class ArchivoTransporte {
     }
 
 
+    private static final Map<String, BiFunction<Integer, Double, Servicio>> FABRICAS = Map.of(
+            "PASEO_TURISTICO", (d, p) -> new PaseoTuristico(d, p),
+            "EXCURSION_ESCOLAR", (d, p) -> new ExcursionEscolar(d, p.intValue()),
+            "TRASLADO_EMPRESARIAL", (d, p) -> new TrasladoEmpresarial(d, p.intValue())
+    );
+
     private Servicio crearServicio(String tipo, int duracion, double parametro) {
-        return switch (tipo) {
-            case "PASEO_TURISTICO" -> new PaseoTuristico(duracion, parametro);
-            case "EXCURSION_ESCOLAR" -> new ExcursionEscolar(duracion, (int) parametro);
-            case "TRASLADO_EMPRESARIAL" -> new TrasladoEmpresarial(duracion, (int) parametro);
-            default -> throw new DatoInvalidoException("El tipo de servicio guardado no existe");
-        };
+        var fabrica = FABRICAS.get(tipo);
+        if (fabrica == null) throw new DatoInvalidoException("Tipo desconocido: " + tipo);
+        return fabrica.apply(duracion, parametro);
     }
 }
 

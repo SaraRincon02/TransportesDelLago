@@ -1,4 +1,4 @@
-package co.edu.uptc.controlador;
+package co.edu.uptc.negocio;
 
 public class BusOcupadoException extends Exception {
     public BusOcupadoException(String placa) {

@@ -1,4 +1,4 @@
-package co.edu.uptc.controlador;
+package co.edu.uptc.negocio;
 
 import co.edu.uptc.modelo.*;
 
@@ -29,7 +29,11 @@ public class SistemaTransporte {
         this.servicios = new ArrayList<>();
 
         if (archivo.existe()) {
-            cargar();
+            try {
+                cargar();
+            } catch (DatoInvalidoException e) {
+                throw new DatoInvalidoException("No se pudo cargar el archivo de datos. Revise el archivo y vuelva a intentar.");
+            }
         } else {
             precargarDatos();
             guardar();
@@ -53,7 +57,7 @@ public class SistemaTransporte {
 
 
     public void guardar() {
-        archivo.guardar(reservas,contratantes,buses,encomiendas);
+        archivo.guardarTodo(reservas, contratantes, buses, encomiendas);   // ✅
     }
 
     public void agregarBus(Bus nuevoBus) {
