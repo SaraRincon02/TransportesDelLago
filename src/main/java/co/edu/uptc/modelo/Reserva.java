@@ -64,6 +64,17 @@ public class Reserva {
         this.fechaCierre = null;
     }
 
+    public Reserva(int id, Contratante contratante, Bus bus, Servicio servicio,
+                   LocalDateTime fechaInicio, LocalDateTime fechaFin,
+                   EstadoReserva estado, double valorFinal, double penalidad,
+                   LocalDateTime fechaCierre) {
+
+        this(id, contratante, bus, servicio, fechaInicio, fechaFin,
+                estado, valorFinal, penalidad);
+
+        this.fechaCierre = fechaCierre;
+    }
+
     public Contratante getContratante() {
         return contratante;
     }
@@ -152,52 +163,51 @@ public class Reserva {
         estado = EstadoReserva.CANCELADA;
     }
 
-    public void iniciar(LocalDateTime ahora) throws  TransicionInvalidaException {
-            if (ahora == null) {
-                throw new DatoInvalidoException("Debe indicar la fecha y hora de inicio");
-            }
-
-            if (estado != EstadoReserva.CONFIRMADA || !ahora.toLocalDate().equals(fechaInicio.toLocalDate())) {
-                throw new TransicionInvalidaException(estado, EstadoReserva.EN_CURSO);
-            }
-
-            if (ahora.isBefore(fechaInicio)) {
-                throw new DatoInvalidoException("No se puede iniciar el viaje antes de la hora programada");
-            }
-            estado = EstadoReserva.EN_CURSO;
+    public void iniciar(LocalDateTime ahora) throws TransicionInvalidaException {
+        if (ahora == null) {
+            throw new DatoInvalidoException("Debe indicar la fecha y hora de inicio");
         }
+        if (estado != EstadoReserva.CONFIRMADA) {
+            throw new TransicionInvalidaException(estado, EstadoReserva.EN_CURSO);
+        }
+        if (!ahora.toLocalDate().equals(fechaInicio.toLocalDate())) {
+            throw new DatoInvalidoException("Solo se puede iniciar el mismo día de la reserva");
+        }
+        if (ahora.isBefore(fechaInicio)) {
+            throw new DatoInvalidoException("No se puede iniciar antes de la hora programada");
+        }
+        estado = EstadoReserva.EN_CURSO;
+    }
 
 
     public void cerrar(LocalDateTime ahora) throws TransicionInvalidaException {
-
         if (ahora == null) {
             throw new DatoInvalidoException("Debe indicar la fecha y hora de cierre");
         }
-        if (ahora.isBefore(fechaInicio)) {
-            throw new DatoInvalidoException("La fecha de cierre no puede ser anterior al inicio del viaje");
-        }
-
         if (estado != EstadoReserva.EN_CURSO) {
             throw new TransicionInvalidaException(estado, EstadoReserva.CERRADA);
         }
-
+        if (ahora.isBefore(fechaInicio)) {
+            throw new DatoInvalidoException("La fecha de cierre no puede ser anterior al inicio");
+        }
         fechaCierre = ahora;
         estado = EstadoReserva.CERRADA;
     }
 
 
-    public void reprogramar(LocalDateTime nuevoInicio, Bus nuevobus) throws  TransicionInvalidaException {
-        if (estado != EstadoReserva.CREADA && estado != EstadoReserva.CONFIRMADA){
+    public void reprogramar(LocalDateTime nuevoInicio, Bus nuevoBus) throws TransicionInvalidaException {
+        if (estado != EstadoReserva.CREADA && estado != EstadoReserva.CONFIRMADA) {
             throw new TransicionInvalidaException("Solo se reprograma reservas CREADA o CONFIRMADA");
         }
-
-        if (nuevoInicio == null || nuevobus == null) {
+        if (nuevoInicio == null || nuevoBus == null) {
             throw new DatoInvalidoException("La nueva fecha y el nuevo bus son obligatorios");
         }
-
+        if (nuevoInicio.isBefore(LocalDateTime.now())) {
+            throw new DatoInvalidoException("No se puede reprogramar a una fecha pasada");
+        }
         validarHorario(nuevoInicio);
-        servicio.validarBus(nuevobus);
-        this.bus = nuevobus;
+        servicio.validarBus(nuevoBus);
+        this.bus = nuevoBus;
         this.fechaInicio = nuevoInicio;
         this.fechaFin = nuevoInicio.plusHours(servicio.getDuracionHoras());
         recalcularValor();
@@ -215,4 +225,6 @@ public class Reserva {
     public boolean ocupaBus(){
         return  estado != EstadoReserva.CANCELADA;
     }
+
+
 }

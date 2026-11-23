@@ -3,22 +3,29 @@ package co.edu.uptc.vista;
 import co.edu.uptc.controlador.BusOcupadoException;
 import co.edu.uptc.controlador.ContratanteNoEncontradoException;
 import co.edu.uptc.controlador.SistemaTransporte;
+import co.edu.uptc.modelo.Bus;
 import co.edu.uptc.modelo.DatoInvalidoException;
 import co.edu.uptc.modelo.Reserva;
 import co.edu.uptc.modelo.TransicionInvalidaException;
 
 import javax.swing.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 
 public class MenuConsola {
-    private static final DateTimeFormatter FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private static final DateTimeFormatter FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+    private static final DateTimeFormatter FECHA_SOLA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final String TITULO = "Transportes del Lago";
 
     private SistemaTransporte sistema;
 
     public  MenuConsola(SistemaTransporte sistema){
+        if (sistema == null) {
+            throw new DatoInvalidoException("El sistema de transporte es obligatorio");
+        }
         this.sistema = sistema;
     }
 
@@ -26,7 +33,7 @@ public class MenuConsola {
         try {
             sistema.cargar();
         }catch (DatoInvalidoException e){
-            avisar("Iniciando sistema." + e.getMessage());
+            avisar("Iniciando sistema" + e.getMessage());
         }
 
         String opcion = "";
@@ -36,10 +43,18 @@ public class MenuConsola {
                     + "2. Crear nueva reserva\n"
                     + "3. Reprogramar reserva\n"
                     + "4. Cancelar reserva\n"
-                    + "5. Reportes y Estadísticas\n"
-                    + "6. Precargar datos del Sistema\n"
-                    + "7. Ver datos del sistema (Buses, Clientes, etc.)\n"
-                    + "0. Salir y Guardar\n"
+                    + "5. Confirmar reserva\n"
+                    + "6. Iniciar reserva\n"
+                    + "7. Cerrar reserva\n"
+                    + "8. Reportes y estadísticas\n"
+                    + "9. Consultar agenda de un bus\n"
+                    + "10. Historial de un cliente\n"
+                    + "11. Ver datos del sistema\n"
+                    + "12. Crear bus\n"
+                    + "13. Crear contratante\n"
+                    + "14. Crear encomienda\n"
+                    + "15. Ver seguro y póliza (excursión/encomienda)\n"
+                    + "0. Salir y guardar\n"
                     + "Elija una opción:";
 
             String input = JOptionPane.showInputDialog(null, menu, TITULO, JOptionPane.PLAIN_MESSAGE);
@@ -47,7 +62,7 @@ public class MenuConsola {
             if (input == null) {
                 opcion = "0";
             } else if (input.trim().isEmpty()) {
-                avisar("Debe elegir una opción del menú.");
+                avisar("Debe elegir una opción del menú");
                 opcion = "";
                 continue;
             } else {
@@ -69,14 +84,37 @@ public class MenuConsola {
                         cancelarReserva();
                         break;
                     case "5":
-                        mostrarReportes();
+                        confirmarReserva();
                         break;
                     case "6":
-                        sistema.precargarDatos();
-                        mostrarMensaje("Buses, clientes y servicios precargados con exito.", JOptionPane.INFORMATION_MESSAGE);
+                        iniciarReserva();
                         break;
                     case "7":
+                        cerrarReserva();
+                        break;
+                    case "8":
+                        mostrarReportes();
+                        break;
+                    case "9":
+                        consultarAgenda();
+                        break;
+                    case "10":
+                        historialCliente();
+                        break;
+                    case "11":
                         mostrarDatosSistema();
+                        break;
+                    case "12":
+                        crearBus();
+                        break;
+                    case "13":
+                        crearContratante();
+                        break;
+                    case "14":
+                        crearEncomienda();
+                        break;
+                    case "15":
+                        verSeguroPoliza();
                         break;
                     case "0":
                         sistema.guardar();
@@ -89,6 +127,7 @@ public class MenuConsola {
                 avisar("Alerta de negocio: " + e.getMessage());
             } catch (Exception e) {
                 avisar("Error inesperaado: " + e.getMessage());
+                e.printStackTrace();
             }
         }
     }
@@ -119,15 +158,33 @@ public class MenuConsola {
 
         for (Reserva r : sistema.getReservas()) {
             texto += "ID: " + r.getId() + "\n"
-                    + "Cliente: " + r.getContratante().getNombre() + " (Doc: " + r.getContratante().getDocumento() + ")\n"
+                    + "Cliente: " + r.getContratante().getNombre()
+                    + " (Doc: " + r.getContratante().getDocumento() + ")\n"
                     + "Bus: " + r.getBus().getPlaca() + "\n"
                     + "Servicio: " + r.getServicio().getNombre() + "\n"
                     + "Inicio: " + r.getFechaInicio().format(FECHA) + "\n"
+                    + "Fin: " + r.getFechaFin().format(FECHA)+ "\n"
                     + "Estado: " + r.getEstado().getTexto() + "\n"
+                    + "Valor: $" + r.getValorFinal() + "\n"
+                    + "Penalidad: $" + r.getPenalidad()+ "\n"
+                    + "Cierre: " + r.getFechaCierre().format(FECHA) +"\n"
                     + "--------------------------------------------------\n";
         }
 
-        mostrarMensaje(texto, JOptionPane.INFORMATION_MESSAGE);
+
+        JTextArea area = new JTextArea(texto, 25, 50);
+        area.setEditable(false);
+        area.setLineWrap(true);
+        area.setWrapStyleWord(true);
+
+        JScrollPane desplazamiento = new JScrollPane(area);
+
+        JOptionPane.showMessageDialog(
+                null,
+                desplazamiento,
+                "Lista de reservas",
+                JOptionPane.INFORMATION_MESSAGE
+        );
     }
 
     private void crearReserva() throws BusOcupadoException, ContratanteNoEncontradoException {
@@ -157,13 +214,18 @@ public class MenuConsola {
         try {
             LocalDateTime fechaInicio = LocalDateTime.parse(strFecha, FECHA);
 
-            // Generamos un ID autoincremental sencillo
             int nuevoId = sistema.getReservas().size() + 1;
 
             Reserva nueva = new Reserva(nuevoId, contratante, bus, servicio, fechaInicio);
-            sistema.agregarReserva(nueva);
-
-            mostrarMensaje("¡Reserva ID " + nuevoId + " creada con éxito!", JOptionPane.INFORMATION_MESSAGE);
+            int resp = JOptionPane.showConfirmDialog(null,
+                    "Valor calculado: $" + nueva.getValorFinal() + "\n¿Desea guardar la reserva?",
+                    TITULO, JOptionPane.YES_NO_OPTION);
+            if (resp == JOptionPane.YES_OPTION) {
+                sistema.agregarReserva(nueva);
+                mostrarMensaje("Reserva creada con ID " + nueva.getId(), JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                avisar("Reserva no guardada.");
+            }
 
         } catch (DateTimeParseException e) {
             avisar("Formato de fecha inválido. Recuerde usar el formato: dd/MM/yyyy HH:mm");
@@ -216,7 +278,6 @@ public class MenuConsola {
                 return;
             }
 
-            // Llamamos al método de la clase Reserva
             reserva.cancelar(LocalDateTime.now());
             mostrarMensaje("Reserva cancelada con éxito.", JOptionPane.INFORMATION_MESSAGE);
 
@@ -227,8 +288,49 @@ public class MenuConsola {
         }
     }
 
+    private void confirmarReserva() {
+        try {
+            int id = Integer.parseInt(preguntar("ID a confirmar:"));
+            sistema.confirmarReserva(id);
+            mostrarMensaje("Reserva confirmada.", JOptionPane.INFORMATION_MESSAGE);
+        } catch (NumberFormatException e) { avisar("ID inválido."); }
+        catch (Exception e) { avisar("No se pudo confirmar: " + e.getMessage()); }
+    }
+    private void iniciarReserva() {
+        try {
+            int id = Integer.parseInt(preguntar("ID a iniciar:"));
+            sistema.iniciarReserva(id, LocalDateTime.now());
+            mostrarMensaje("Reserva en curso.", JOptionPane.INFORMATION_MESSAGE);
+        } catch (NumberFormatException e) { avisar("ID inválido."); }
+        catch (Exception e) { avisar("No se pudo iniciar: " + e.getMessage()); }
+    }
+
+    private void cerrarReserva() {
+        try {
+            int id = Integer.parseInt(preguntar("ID a cerrar:"));
+            sistema.cerrarReserva(id, LocalDateTime.now());
+            mostrarMensaje("Reserva cerrada.", JOptionPane.INFORMATION_MESSAGE);
+        } catch (NumberFormatException e) { avisar("ID inválido."); }
+        catch (Exception e) { avisar("No se pudo cerrar: " + e.getMessage()); }
+    }
+
+
+
     private void mostrarReportes() {
         String texto = "=== REPORTES FINANCIEROS ===\n\n";
+
+        String pr = preguntar("Reporte de ingresos.\nFecha inicial (dd/MM/yyyy HH:mm):");
+        if (pr == null) return;
+        String pre = preguntar("Fecha final (dd/MM/yyyy HH:mm):");
+        if (pre == null) return;
+
+        try {
+            LocalDateTime ini = LocalDateTime.parse(pr, FECHA);
+            LocalDateTime fin = LocalDateTime.parse(pre, FECHA);
+            texto += "Ingresos entre fechas: $" + sistema.calcularIngresos(ini, fin) + "\n";
+        } catch (DateTimeParseException e) {
+            texto += "Ingresos: Formato de fecha invalido";
+        }
 
         texto += "Total Penalidades Acumuladas: $" + sistema.calcularTotalPenalidades() + "\n\n";
 
@@ -237,7 +339,6 @@ public class MenuConsola {
 
         texto += "--- Conteo por Estado ---\n";
         int[] conteos = sistema.contarReservasPorEstado();
-        // Usamos el Enum para imprimir dinámicamente los estados y sus contadores
         var estados = co.edu.uptc.modelo.EstadoReserva.values();
         for (int i = 0; i < estados.length; i++) {
             texto += estados[i].getTexto() + ": " + conteos[i] + "\n";
@@ -245,6 +346,47 @@ public class MenuConsola {
 
         mostrarMensaje(texto, JOptionPane.INFORMATION_MESSAGE);
     }
+
+    private void consultarAgenda() {
+        String texto = "=== AGENDA ===\n\n";
+
+        String placa = preguntar("Placa del bus:");
+        if (placa == null) return;
+        String f = preguntar("Fecha (dd/MM/yyyy):");
+        if (f == null) return;
+        try {
+            LocalDate fecha = LocalDate.parse(f, FECHA_SOLA);
+            List<Reserva> agenda = sistema.consultarAgendaBus(placa, fecha);
+            if (agenda.isEmpty()) { avisar("No hay reservas ese día para el bus " + placa); return; }
+            for (Reserva r : agenda) {
+                texto+= r.getFechaInicio().format(FECHA) + "\n"
+                        +r.getFechaFin().format(FECHA) + "\n"
+                        +r.getServicio().getNombre()  + "\n"
+                        +r.getEstado().getTexto()  + "\n";
+            }
+        } catch (DateTimeParseException e) { avisar("Fecha inválida."); }
+    }
+
+    private void historialCliente() throws ContratanteNoEncontradoException {
+        String texto = "=== HISTORIAL ===\n\n";
+        String doc = preguntar("Documento del cliente:");
+        if (doc == null) return;
+        List<Reserva> hist = sistema.historialCliente(doc);
+        if (hist.isEmpty()) {
+            avisar("El cliente no tiene reservas.");
+            return;
+        }
+        for (Reserva r : hist) {
+            texto+= "ID " +r.getId() + "\n"
+                    +r.getFechaInicio().format(FECHA) + "\n"
+                    +r.getServicio().getNombre() + "\n"
+                    +r.getEstado().getTexto() + "\n"
+                    +r.getValorFinal() + "\n";
+        }
+    }
+
+
+
 
     private void mostrarDatosSistema() {
         String texto = "=== DATOS ACTUALES DEL SISTEMA ===\n\n";
@@ -289,5 +431,22 @@ public class MenuConsola {
         }
         mostrarMensaje(texto, JOptionPane.INFORMATION_MESSAGE);
     }
+    private void crearBus() {
+        String cod = preguntar("Código del bus (ej BUS-07):");
+        if (cod == null) return;
+        String placa = preguntar("Placa:");
+        if (placa == null) return;
+        try {
+            int cap = Integer.parseInt(preguntar("Capacidad:"));
+            sistema.agregarBus(new Bus(cod, placa, cap));
+            mostrarMensaje("Bus creado.", JOptionPane.INFORMATION_MESSAGE);
+        } catch (NumberFormatException e) { avisar("Capacidad inválida."); }
+    }
+
+    private void crearContratante() {
+        String doc = preguntar("Documento/NIT:");
+        if (doc == null) return;
+
+
 
 }

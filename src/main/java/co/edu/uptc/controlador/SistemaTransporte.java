@@ -2,6 +2,7 @@ package co.edu.uptc.controlador;
 
 import co.edu.uptc.modelo.*;
 
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -16,16 +17,17 @@ public class SistemaTransporte {
     private List<Servicio> servicios;
 
 
-    public SistemaTransporte() {
-        if (archivo == null) {
+    public SistemaTransporte(Path carpeta) {
+        if (carpeta == null) {
             throw new DatoInvalidoException("El directorio de datos es obligatorio");
         }
+        this.archivo = new ArchivoTransporte(carpeta);
         this.reservas = new ArrayList<>();
-        this.archivo = new ArchivoTransporte();
         this.contratantes = new ArrayList<>();
         this.buses = new ArrayList<>();
         this.encomiendas = new ArrayList<>();
         this.servicios = new ArrayList<>();
+
         if (archivo.existe()) {
             cargar();
         } else {
@@ -35,11 +37,23 @@ public class SistemaTransporte {
     }
 
     public void cargar() {
-        this.reservas = new ArrayList<>(archivo.cargar(this.contratantes, this.buses, this.servicios));
+        this.contratantes = new ArrayList<>(archivo.cargarContratantes());
+        this.buses = new ArrayList<>(archivo.cargarBuses());
+        this.encomiendas = new ArrayList<>(archivo.cargarEncomiendas());
+        this.reservas = new ArrayList<>(archivo.cargarReservas(contratantes, buses));
+        // Reconstruir lista de servicios a partir de las reservas (o precargar)
+        this.servicios = new ArrayList<>();
+        for (Reserva r : reservas) {
+            if (!servicios.contains(r.getServicio())) {
+                servicios.add(r.getServicio());
+            }
+        }
     }
 
+
+
     public void guardar() {
-        archivo.guardar(reservas);
+        archivo.guardar(reservas,contratantes,buses,encomiendas);
     }
 
     public void agregarBus(Bus nuevoBus) {
@@ -97,17 +111,7 @@ public class SistemaTransporte {
         reservas.add(nueva);
     }
 
-    public void confirmarReserva(int id) throws TransicionInvalidaException {
-        buscarReserva(id).confirmar();
-    }
 
-    public void iniciarReserva(int id, LocalDateTime ahora) throws TransicionInvalidaException {
-        buscarReserva(id).iniciar(ahora);
-    }
-
-    public void cerrarReserva(int id, LocalDateTime ahora) throws TransicionInvalidaException {
-        buscarReserva(id).cerrar(ahora);
-    }
 
     public void cancelarReserva(int id, LocalDateTime ahora) throws TransicionInvalidaException {
         buscarReserva(id).cancelar(ahora);
@@ -182,15 +186,15 @@ public class SistemaTransporte {
         if (fechaInicial == null || fechaFinal == null || fechaFinal.isBefore(fechaInicial)) {
             throw new DatoInvalidoException("El rango de fechas no es válido.");
         }
-
         double total = 0;
-
-        for (Reserva reserva : reservas) {
-            if (reserva.getEstado() == EstadoReserva.CERRADA && !reserva.getFechaInicio().isBefore(fechaInicial) && !reserva.getFechaInicio().isAfter(fechaFinal)) {
-                total += reserva.getValorFinal();
+        for (Reserva r : reservas) {
+            if (r.getEstado() == EstadoReserva.CERRADA
+                    && r.getFechaCierre() != null
+                    && !r.getFechaCierre().isBefore(fechaInicial)
+                    && !r.getFechaCierre().isAfter(fechaFinal)) {
+                total += r.getValorFinal();
             }
         }
-
         return total;
     }
 
@@ -279,32 +283,49 @@ public class SistemaTransporte {
         }
         return agenda;
     }
-
-    public List<Reserva> consultarHistorialContratante(String documento) throws ContratanteNoEncontradoException {
-        Contratante contratante = buscarContratante(documento);
+    public List<Reserva> historialCliente(String documento) throws ContratanteNoEncontradoException {
+        Contratante c = buscarContratante(documento);
         List<Reserva> historial = new ArrayList<>();
-        for (Reserva reserva : reservas) {
-            if (reserva.getContratante().getDocumento().equals(contratante.getDocumento())) {
-                historial.add(reserva);
+        for (Reserva r : reservas) {
+            if (r.getContratante().getDocumento().equals(c.getDocumento())) {
+                historial.add(r);
             }
         }
         return historial;
     }
 
-    public double calcularIngresos(LocalDate fechaInicial, LocalDate fechaFinal) {
-        if (fechaInicial == null || fechaFinal == null || fechaFinal.isBefore(fechaInicial)) {
-            throw new DatoInvalidoException("El rango de fechas no es válido.");
+    public Encomienda buscarEncomienda(String codigo) {
+        if (codigo == null || codigo.trim().isEmpty()) {
+            throw new DatoInvalidoException("Debe ingresar el código de la encomienda");
         }
-        double total = 0;
-        for (Reserva reserva : reservas) {
-            LocalDate fechaSalida = reserva.getFechaInicio().toLocalDate();
-            if (reserva.getEstado() == EstadoReserva.CERRADA
-                    && !fechaSalida.isBefore(fechaInicial) && !fechaSalida.isAfter(fechaFinal)) {
-                total += reserva.getValorFinal();
-            }
+        for (Encomienda e : encomiendas) {
+            if (e.getCodigo().equalsIgnoreCase(codigo.trim())) return e;
         }
-        return total;
+        throw new DatoInvalidoException("No existe encomienda con código " + codigo);
     }
+
+    public int generarIdReserva() {
+        int max = 0;
+        for (Reserva r : reservas) {
+            if (r.getId() > max) max = r.getId();
+        }
+        return max + 1;
+    }
+
+
+    public void confirmarReserva(int id) throws TransicionInvalidaException {
+        buscarReserva(id).confirmar();
+    }
+
+    public void iniciarReserva(int id, LocalDateTime ahora) throws TransicionInvalidaException {
+        buscarReserva(id).iniciar(ahora);
+    }
+
+    public void cerrarReserva(int id, LocalDateTime ahora) throws TransicionInvalidaException {
+        buscarReserva(id).cerrar(ahora);
+    }
+
+
 
     private Reserva nuevaReserva(int id, String documento, String placa, Servicio servicio, LocalDateTime inicio)
             throws ContratanteNoEncontradoException, BusOcupadoException {
@@ -315,6 +336,9 @@ public class SistemaTransporte {
 
 
     public void precargarDatos() {
+        if (!buses.isEmpty() || !contratantes.isEmpty()) {
+            return;
+        }
 
         buses.add(new Bus("BUS-01", "AAA001", 40));
         buses.add(new Bus("BUS-02", "AAA002", 40));
@@ -337,45 +361,45 @@ public class SistemaTransporte {
         encomiendas.add(new Encomienda("ENC-003", "Carlos Ruiz", "Elena Díaz", 23.0, 320000));
 
         try {
-            Reserva r1 = nuevaReserva(1, "900101", "AAA001", new PaseoTuristico(6, 80), LocalDateTime.of(2026, 10, 5, 8, 0));
+            Reserva r1 = nuevaReserva(1, "123", "AAA001", new PaseoTuristico(6, 80), LocalDateTime.of(2026, 10, 5, 8, 0));
             r1.confirmar();
             r1.iniciar(LocalDateTime.of(2026, 10, 5, 8, 0));
             r1.cerrar(LocalDateTime.of(2026, 10, 5, 14, 0));
 
-            Reserva r2 = nuevaReserva(2, "900202", "AAA002", new ExcursionEscolar(6, 30), LocalDateTime.of(2026, 11, 10, 7, 0));
+            Reserva r2 = nuevaReserva(2, "456", "AAA002", new ExcursionEscolar(6, 30), LocalDateTime.of(2026, 11, 10, 7, 0));
             r2.confirmar();
 
-            Reserva r3 = nuevaReserva(3, "900303", "AAA003", new TrasladoEmpresarial(4, 1), LocalDateTime.of(2026, 11, 11, 10, 0));
+            Reserva r3 = nuevaReserva(3, "789", "AAA003", new TrasladoEmpresarial(4, 1), LocalDateTime.of(2026, 11, 11, 10, 0));
             r3.cancelar(LocalDateTime.of(2026, 11, 9, 10, 0));
 
-            Reserva r4 = nuevaReserva(4, "900404", "AAA004", new PaseoTuristico(5, 95), LocalDateTime.of(2026, 11, 12, 9, 0));
+            Reserva r4 = nuevaReserva(4, "208", "AAA004", new PaseoTuristico(5, 95), LocalDateTime.of(2026, 11, 12, 9, 0));
             r4.confirmar();
             r4.iniciar(LocalDateTime.of(2026, 11, 12, 9, 0));
 
-            nuevaReserva(5, "900101", "AAA005", new ExcursionEscolar(4, 15), LocalDateTime.of(2026, 11, 15, 8, 0));
+            nuevaReserva(5, "123", "AAA005", new ExcursionEscolar(4, 15), LocalDateTime.of(2026, 11, 15, 8, 0));
 
-            Reserva r6 = nuevaReserva(6, "900202", "AAA006", new TrasladoEmpresarial(3, 2), LocalDateTime.of(2026, 11, 16, 6, 0));
+            Reserva r6 = nuevaReserva(6, "456", "AAA006", new TrasladoEmpresarial(3, 2), LocalDateTime.of(2026, 11, 16, 6, 0));
             r6.confirmar();
             r6.iniciar(LocalDateTime.of(2026, 11, 16, 6, 0));
             r6.cerrar(LocalDateTime.of(2026, 11, 16, 9, 0));
 
-            Reserva r7 = nuevaReserva(7, "900303", "AAA001", new PaseoTuristico(4, 70), LocalDateTime.of(2026, 11, 20, 19, 0));
+            Reserva r7 = nuevaReserva(7, "789", "AAA001", new PaseoTuristico(4, 70), LocalDateTime.of(2026, 11, 20, 19, 0));
             r7.confirmar();
 
-            Reserva r8 = nuevaReserva(8, "900404", "AAA002", new ExcursionEscolar(5, 28), LocalDateTime.of(2026, 11, 21, 10, 0));
+            Reserva r8 = nuevaReserva(8, "208", "AAA002", new ExcursionEscolar(5, 28), LocalDateTime.of(2026, 11, 21, 10, 0));
             r8.confirmar();
             r8.cancelar(LocalDateTime.of(2026, 11, 20, 12, 0));
 
-            nuevaReserva(9, "900101", "AAA003", new TrasladoEmpresarial(4, 0), LocalDateTime.of(2026, 12, 1, 8, 0));
+            nuevaReserva(9, "123", "AAA003", new TrasladoEmpresarial(4, 0), LocalDateTime.of(2026, 12, 1, 8, 0));
 
-            Reserva r10 = nuevaReserva(10, "900202", "AAA004", new ExcursionEscolar(6, 25), LocalDateTime.of(2026, 10, 29, 7, 0));
+            Reserva r10 = nuevaReserva(10, "456", "AAA004", new ExcursionEscolar(6, 25), LocalDateTime.of(2026, 10, 29, 7, 0));
             r10.confirmar();
             r10.iniciar(LocalDateTime.of(2026, 10, 29, 7, 0));
             r10.cerrar(LocalDateTime.of(2026, 10, 29, 13, 0));
+
         } catch (BusOcupadoException | ContratanteNoEncontradoException | TransicionInvalidaException excepcion) {
             throw new DatoInvalidoException("No fue posible preparar los datos iniciales: " + excepcion.getMessage());
         }
-
     }
 
 
